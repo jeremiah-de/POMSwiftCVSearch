@@ -36,7 +36,7 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
             searchController.dimsBackgroundDuringPresentation = false
 
             //setup the search bar
-            searchController.searchBar.autoresizingMask = UIViewAutoresizing.FlexibleWidth | UIViewAutoresizing.FlexibleHeight
+            searchController.searchBar.autoresizingMask = [UIViewAutoresizing.FlexibleWidth, UIViewAutoresizing.FlexibleHeight]
             self.searchBarContainer?.addSubview(searchController.searchBar)
             searchController.searchBar.sizeToFit()
 
@@ -49,9 +49,11 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
     func searchString(string: String, searchTerm:String) -> Array<AnyObject>
     {
         var matches:Array<AnyObject> = []
-        if let regex = NSRegularExpression(pattern: searchTerm, options: .CaseInsensitive | .AllowCommentsAndWhitespace, error: nil) {
-            let range = NSMakeRange(0, count(string))
-            matches = regex.matchesInString(string, options: .allZeros, range: range)
+        do {
+            let regex = try NSRegularExpression(pattern: searchTerm, options: [.CaseInsensitive, .AllowCommentsAndWhitespace])
+            let range = NSMakeRange(0, string.characters.count)
+            matches = regex.matchesInString(string, options: [], range: range)
+        } catch _ {
         }
         return matches
     }
@@ -126,7 +128,6 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
                     //find the search term matches and highlight the match using and attributed string
                     let searchTermMatches = self.searchString(labelText, searchTerm: searchTerm)
                     let attributedLabelText = NSMutableAttributedString(string: labelText)
-                    let labelTextRange = NSMakeRange(0, attributedLabelText.length)
                     
                     for match in searchTermMatches as! [NSTextCheckingResult] {
                         let matchRange = match.range
@@ -149,7 +150,7 @@ class ViewController: UIViewController, UISearchControllerDelegate, UISearchResu
     
     func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath)
     {
-        if let labelCell = collectionView.cellForItemAtIndexPath(indexPath) as? LabelCollectionViewCell {
+        if let _ = collectionView.cellForItemAtIndexPath(indexPath) as? LabelCollectionViewCell {
             //create an alert controller for displaying the text of the tapped cell
             let alertController = UIAlertController(title: "You Tapped", message: textForIndexPath(indexPath), preferredStyle: .Alert)
             alertController.addAction(UIAlertAction(title: "Dismiss", style: .Default, handler: nil))
